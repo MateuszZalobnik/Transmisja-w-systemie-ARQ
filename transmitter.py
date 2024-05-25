@@ -1,38 +1,44 @@
 from encodedTypeEnum import EncodedTypeEnum
-from encoder import encoder
+from encoder import Encoder
 
 
 class Transmitter:
-    def __init__(self, encoded_type, simulation=False):
+    def __init__(self, encoded_type, channel, simulation=False):
         self.simulation = simulation
         self.data = None
         self.receiver = None
         self.encoded_type = encoded_type
         self.timeout = 1
         self.number_of_retransmission = 0
+        self.channel = channel
 
     def init_receiver(self, receiver):
         self.receiver = receiver
 
     def send(self, data):
         self.__print_message("sending data...")
+        self.__print_message(data)
         self.data = data
 
         encoded_data = self.__add_control_bits()
+        self.__print_message("encoded data:")
+        self.__print_message(encoded_data)
 
-        #TODO send data to channel
-        # self.channel.send(encoded_data)
-        self.receiver.receive(encoded_data)
+        data_with_errors = self.channel.generate_errors(encoded_data)
+        self.__print_message("data with errors:")
+        self.__print_message(data_with_errors)
+
+        self.receiver.receive(data_with_errors)
 
     def __add_control_bits(self):
         if self.encoded_type == EncodedTypeEnum.PARITY:
-            return encoder.encode_with_parity(self.data)
+            return Encoder.encode_with_parity(self.data)
         elif self.encoded_type == EncodedTypeEnum.CRC8:
-            return encoder.encode_with_crc8(self.data)
+            return Encoder.encode_with_crc8(self.data)
         elif self.encoded_type == EncodedTypeEnum.CRC16:
-            return encoder.encode_with_crc16(self.data)
+            return Encoder.encode_with_crc16(self.data)
         elif self.encoded_type == EncodedTypeEnum.CRC32:
-            return encoder.encode_with_crc32(self.data)
+            return Encoder.encode_with_crc32(self.data)
 
     def response(self, should_resend):
         if should_resend:

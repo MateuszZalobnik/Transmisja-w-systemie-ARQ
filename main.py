@@ -1,50 +1,78 @@
 from matplotlib import ticker
+
+from channel import Channel
 from dataGenerator import DataGenerator
 from encodedTypeEnum import EncodedTypeEnum
+from channelTypeEnum import ChannelTypeEnum
 from receiver import Receiver
 from transmitter import Transmitter
 import matplotlib.pyplot as plt
 
-data = DataGenerator.generate_bits_from_text("Hello, World!")
 
+def simulate(transmitter, receiver):
+    # inicjalizacja nadajnika i odbiornika
+    transmitter.init_receiver(receiver)
+    receiver.init_transmitter(transmitter)
+
+    # liczba badanych próbek
+    iterations = 100
+    number_of_retransmissions = 0
+    number_of_incorrect_data = 0
+    for i in range(iterations):
+        transmitter.send(data)
+        number_of_retransmissions += transmitter.number_of_retransmission
+
+        if receiver.data != transmitter.data:
+            number_of_incorrect_data += 1
+
+        # reset nadajnika i odbiornika
+        transmitter.number_of_retransmission = 0
+        transmitter.data = None
+        receiver.data = None
+
+    average_number_of_retransmissions = number_of_retransmissions / iterations
+    average_number_of_incorrect_data = number_of_incorrect_data / iterations
+    return [average_number_of_retransmissions, average_number_of_incorrect_data]
+
+data = DataGenerator.generate_bits_from_text("Hello, World!")
+# data = DataGenerator.generate_bits_from_text("H")
+
+channel = Channel(0.03, ChannelTypeEnum.Random)
+
+# bit parzystości
 # stworzenie nadajnika i odbiornika
-transmitter_with_parity = Transmitter(EncodedTypeEnum.PARITY)
+transmitter_with_parity = Transmitter(EncodedTypeEnum.PARITY, channel)
 receiver_with_parity = Receiver(EncodedTypeEnum.PARITY)
 
-# inicjalizacja nadajnika i odbiornika
-transmitter_with_parity.init_receiver(receiver_with_parity)
-receiver_with_parity.init_transmitter(transmitter_with_parity)
+# CRC 8
+# stworzenie nadajnika i odbiornika
+transmitter_crc8 = Transmitter(EncodedTypeEnum.CRC8, channel)
+receiver_crc8 = Receiver(EncodedTypeEnum.CRC8)
 
+# CRC 16
+# stworzenie nadajnika i odbiornika
+transmitter_crc16 = Transmitter(EncodedTypeEnum.CRC16, channel)
+receiver_crc16 = Receiver(EncodedTypeEnum.CRC16)
 
-number_of_retransmissions = 0
-number_of_incorrect_data = 0
-for i in range(100):
-    transmitter_with_parity.send(data)
-    number_of_retransmissions += transmitter_with_parity.number_of_retransmission
+# CRC 32
+# stworzenie nadajnika i odbiornika
+transmitter_crc32 = Transmitter(EncodedTypeEnum.CRC32, channel)
+receiver_crc32 = Receiver(EncodedTypeEnum.CRC32)
 
-    if receiver_with_parity.data != transmitter_with_parity.data:
-        number_of_incorrect_data += 1
-
-    # reset nadajnika i odbiornika
-    transmitter_with_parity.number_of_retransmission = 0
-    transmitter_with_parity.data = None
-    receiver_with_parity.data = None
-
-average_number_of_retransmissions = number_of_retransmissions / 100
-average_number_of_incorrect_data = number_of_incorrect_data / 100
-
-
-
+result_parity = simulate(transmitter_with_parity, receiver_with_parity)
+result_crc8 = simulate(transmitter_crc8, receiver_crc8)
+result_crc16 = simulate(transmitter_crc16, receiver_crc16)
+result_crc32 = simulate(transmitter_crc32, receiver_crc32)
 
 plt.figure(figsize=(8, 6))
 
 coorection_codes = ("Parity bit", "CRC8", "CRC16", "CRC32")
 
 # Dane dla pierwszego wykresu
-plot_data = [average_number_of_incorrect_data, 0.5, 0.3, 0.5]
+plot_data = [result_parity[1], result_crc8[1], result_crc16[1], result_crc32[1]]
 plt.bar(coorection_codes, plot_data)
 plt.ylabel('% zaakceptowanych złych danych')
-plt.title('Średnia ilość zaakceptowanych złych danych w zależności od kodu korekcyjnego')
+plt.title('Średnia procent zaakceptowanych złych danych w zależności od kodu detekcyjnego')
 
 # Formatowanie etykiet osi Y jako procenty
 plt.gca().yaxis.set_major_formatter(ticker.PercentFormatter(1.0))
@@ -52,8 +80,8 @@ plt.show()
 
 
 # Dane dla drugiego wykresu
-plot_data = [average_number_of_retransmissions, 100, 30, 55]
+plot_data = [result_parity[0], result_crc8[0], result_crc16[0], result_crc32[0]]
 plt.bar(coorection_codes, plot_data)
-plt.ylabel('ilość retransmisji')
-plt.title('Średnia ilość retransmisji w zależności od kodu korekcyjnego')
+plt.ylabel('liczba retransmisji')
+plt.title('Średnia liczba retransmisji w zależności od kodu detekcyjnego')
 plt.show()

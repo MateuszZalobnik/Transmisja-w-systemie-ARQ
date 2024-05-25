@@ -1,4 +1,4 @@
-class encoder:
+class Encoder:
     """
     Klasa dodająca bity kontrolne
     """
@@ -7,16 +7,14 @@ class encoder:
         """
         Metoda wywołująca dodanie 8 bitów CRC, dla wielomianu CRC x^8+x^7+x^6+x^4+x^2+1
         """
-        # Utwórz obiekt CRC z określonymi parametrami
-        return encoder.encode_with_crc(data, [1, 1, 1, 0, 1, 0, 1, 0, 1])
+        return Encoder.__encode_with_crc(data, [1, 1, 1, 0, 1, 0, 1, 0, 1])
 
     @staticmethod
     def encode_with_crc16(data):
         """
         Metoda wywołująca dodanie 16 bitów CRC, dla wielomianu CRC x^16+x^15+x^11+x^9+x^8+x^7+x^5+x^4+x^2+x^1+1
         """
-        # Utwórz obiekt CRC z określonymi parametrami
-        return encoder.encode_with_crc(
+        return Encoder.__encode_with_crc(
             data, [1, 1, 0, 0, 0, 1, 0, 1, 1,
                    1, 0, 1, 1, 0, 1, 1, 1])
 
@@ -26,8 +24,7 @@ class encoder:
         Metoda wywołująca dodanie 32 bitów CRC,
         dla wielomianu CRC x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x^1+1
         """
-        # Utwórz obiekt CRC z określonymi parametrami
-        return encoder.encode_with_crc(
+        return Encoder.__encode_with_crc(
             data, [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
                    0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1])
 

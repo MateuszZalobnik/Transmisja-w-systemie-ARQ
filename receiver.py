@@ -1,5 +1,5 @@
 from encodedTypeEnum import EncodedTypeEnum
-from encoder import encoder
+from encoder import Encoder
 
 
 class Receiver:
@@ -43,25 +43,25 @@ class Receiver:
     def __are_control_bits_correct(self, data, control_bits):
         if self.encoded_type_enum == EncodedTypeEnum.PARITY:
             # sprawdzenie czy bit parzystości zgadza się z uzyskanymi danymi
-            encoded_data = encoder.encode_with_parity(data)
+            encoded_data = Encoder.encode_with_parity(data)
             parity_bit_calculated = encoded_data[-1]
             return parity_bit_calculated != control_bits
 
         elif self.encoded_type_enum == EncodedTypeEnum.CRC8:
             # sprawdzenie czy 8 bitów CRC zgadza się z uzyskanymi danymi
-            encoded_data = encoder.encode_with_crc8(data)
+            encoded_data = Encoder.encode_with_crc8(data)
             crc_calculated = encoded_data[-8:]
             return crc_calculated != control_bits
 
         elif self.encoded_type_enum == EncodedTypeEnum.CRC16:
             # sprawdzenie czy 16 bitów CRC zgadza się z uzyskanymi danymi
-            encoded_data = encoder.encode_with_crc16(data)
+            encoded_data = Encoder.encode_with_crc16(data)
             crc_calculated = encoded_data[-16:]
             return crc_calculated != control_bits
 
         elif self.encoded_type_enum == EncodedTypeEnum.CRC32:
             # sprawdzenie czy 32 bity CRC zgadzają się z uzyskanymi danymi
-            encoded_data = encoder.encode_with_crc32(data)
+            encoded_data = Encoder.encode_with_crc32(data)
             crc_calculated = encoded_data[-32:]
             return crc_calculated != control_bits
 
