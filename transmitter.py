@@ -8,8 +8,8 @@ class Transmitter:
         self.data = None
         self.receiver = None
         self.encoded_type = encoded_type
-        self.timeout = 1
         self.number_of_retransmission = 0
+        self.data_lost = False
         self.channel = channel
 
     def init_receiver(self, receiver):
@@ -47,6 +47,7 @@ class Transmitter:
             if self.number_of_retransmission < 100:
                 self.send(self.data)
             else:
+                self.data_lost = True
                 self.__print_message("Data lost")
         else:
             self.__print_message("Data accepted")

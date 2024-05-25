@@ -15,10 +15,16 @@ class Channel:
             return self.__generate_random_errors(data)
         elif(self.channel_type == ChannelTypeEnum.Burst):
             return self.__generate_burst_errors(data)
+        elif(self.channel_type == ChannelTypeEnum.BSC):
+            return self.__generate_errors_with_bsc(data)
+        elif(self.channel_type == ChannelTypeEnum.NoneErr):
+            return data
 
     def __generate_errors_with_bsc(self, data):
         bsc = komm.BinarySymmetricChannel(self.error_probability)
-        return bsc(data)
+        y = bsc(data)
+        return y.tolist()
+
     def __generate_random_errors(self, data):
         # błędy losowe z prawdopodobieństwem error_probability
         # random.random() zwraca liczbe z przedzialu (0, 1)
